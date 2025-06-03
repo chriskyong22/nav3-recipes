@@ -27,6 +27,8 @@ import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy
 import androidx.compose.material3.adaptive.navigation3.rememberListDetailSceneStrategy
 import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.EntryProviderBuilder
@@ -94,6 +96,12 @@ class MaterialListDetailActivity : ComponentActivity() {
                                 }
                             )
                         ) {
+                            val perNavEntryViewModel = viewModel<TestViewModel>()
+                            Log.d("[VIEWMODEL]", "Per nav entry ${perNavEntryViewModel.toString()}")
+                            val perNavDisplayViewModel = viewModel<TestViewModel>(
+                                viewModelStoreOwner = LocalContext.current as ViewModelStoreOwner
+                            )
+                            Log.d("[VIEWMODEL]", "Activity scoped view model ${perNavDisplayViewModel.toString()} ")
                             ContentRed("Welcome to External Screen") {
 
                             }
@@ -107,6 +115,7 @@ class MaterialListDetailActivity : ComponentActivity() {
             val viewModelStoreNavEntryDecorator = rememberViewModelStoreNavEntryDecorator()
             val nestedMetaDataKey = "nestedMetaDataKey"
             val nestedGraphViewModelStoreNavEntryDecorator = rememberSharedViewModelStoreNavEntryDecorator(nestedMetaDataKey)
+            val navDisplayViewModelStore = LocalContext.current
             NavDisplay(
                 backStack = backStack as SnapshotStateList<Routes>,
                 onBack = { keysToRemove -> repeat(keysToRemove) { backStack.removeLastOrNull() } },
@@ -125,7 +134,12 @@ class MaterialListDetailActivity : ComponentActivity() {
                             }
                         ),
                     ) {
-
+                        val perNavEntryViewModel = viewModel<TestViewModel>()
+                        Log.d("[VIEWMODEL]", "Per nav entry ${perNavEntryViewModel.toString()}")
+                        val perNavDisplayViewModel = viewModel<TestViewModel>(
+                            viewModelStoreOwner = navDisplayViewModelStore as ViewModelStoreOwner
+                        )
+                        Log.d("[VIEWMODEL]", "Activity scoped view model ${perNavDisplayViewModel.toString()} ")
                         ContentRed("Welcome to Landing Page") {
                             Button(
                                 onClick = {
@@ -149,6 +163,12 @@ class MaterialListDetailActivity : ComponentActivity() {
                     entry<Routes.DetailScreen>(
                         metadata = ListDetailSceneStrategy.detailPane(sceneKey = "General"),
                     ) {
+                        val perNavEntryViewModel = viewModel<TestViewModel>()
+                        Log.d("[VIEWMODEL]", "Per nav entry ${perNavEntryViewModel.toString()}")
+                        val perNavDisplayViewModel = viewModel<TestViewModel>(
+                            viewModelStoreOwner = navDisplayViewModelStore as ViewModelStoreOwner
+                        )
+                        Log.d("[VIEWMODEL]", "Activity scoped view model ${perNavDisplayViewModel.toString()} ")
                         ContentRed("Welcome to first list detail screen") {
 
                         }
@@ -163,10 +183,16 @@ class MaterialListDetailActivity : ComponentActivity() {
                             nestedMetaDataKey to SecondScreenNestedGraphViewModel
                         ),
                     ) {
+                        val perNavEntryViewModel = viewModel<TestViewModel>()
+                        Log.d("[VIEWMODEL]", "Per nav entry ${perNavEntryViewModel.toString()}")
+                        val perNavDisplayViewModel = viewModel<TestViewModel>(
+                            viewModelStoreOwner = navDisplayViewModelStore as ViewModelStoreOwner
+                        )
+                        Log.d("[VIEWMODEL]", "Activity scoped view model ${perNavDisplayViewModel.toString()} ")
                         val viewModel: TestViewModel = viewModel(
                             viewModelStoreOwner = LocalSharedViewModelStoreOwner.current
                         )
-                        Log.d("[SHARED VIEW MODEL]", viewModel.toString())
+                        Log.d("[VIEWMODEL]", "Scoped to multiple nav entries: ${viewModel.toString()}")
                         ContentRed("Welcome to request status") {
                             Button(onClick = {
                                 backStack.add(Routes.SecondListDetailScreen)
@@ -182,11 +208,23 @@ class MaterialListDetailActivity : ComponentActivity() {
                             nestedMetaDataKey to SecondScreenNestedGraphViewModel
                         ),
                     ) {
+                        val perNavEntryViewModel = viewModel<TestViewModel>()
+                        Log.d("[VIEWMODEL]", "Per nav entry ${perNavEntryViewModel.toString()}")
+                        val perNavDisplayViewModel = viewModel<TestViewModel>(
+                            viewModelStoreOwner = navDisplayViewModelStore as ViewModelStoreOwner
+                        )
+                        Log.d("[VIEWMODEL]", "Activity scoped view model ${perNavDisplayViewModel.toString()} ")
                         val viewModel: TestViewModel = viewModel(
                             viewModelStoreOwner = LocalSharedViewModelStoreOwner.current
                         )
-                        Log.d("[SHARED VIEW MODEL]", viewModel.toString())
+                        Log.d("[VIEWMODEL]", "Scoped to multiple nav entries: ${viewModel.toString()}")
                         ContentRed("Second List Item Detail") {
+                            Button(onClick = {
+                                backStack.clear()
+                                backStack.add(Routes.LandingScreen)
+                            }) {
+                                Text("Go back to first landing and clear back stack")
+                            }
 
                         }
                     }
